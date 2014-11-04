@@ -84,14 +84,14 @@ def calcStationCoords(station, gridSquares):
 if __name__ == "__main__":
 
     # Input paths
-    csvDir  = "../data/2014-10-29/nrfa/NRFA Flow Data Retrieval"
+    csvDir  = "../data/2014-11-04/nrfa/NRFA Flow Data Retrieval"
+    gridSquaresShp = "../data/2014-11-04/gb-grids_654971/100km_grid_region.shp"
 
     # Output paths
     outDir = "../results"
     outDb = os.path.join(outDir,
                          "%s.sqlite" \
                          % datetime.datetime.now().strftime("%Y-%m-%dT%H%M"))
-    gridSquaresShp = "../data/2014-10-29/gb-grids_654971/100km_grid_region.shp"
 
     # Calculate grid square min x and y coordinates
     gridSquares = getGridSquareMinXY(gridSquaresShp)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     for csvFile in glob.iglob(os.path.join(csvDir, "*.csv")):
         data = readGmfCsv(csvFile)
 
-        # Calcaulte station coordinates
+        # Calculate station coordinates
         data["station"] = calcStationCoords(data["station"], gridSquares)
 
         # Insert data into tables

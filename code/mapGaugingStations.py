@@ -77,8 +77,8 @@ if __name__ == "__main__":
     logging.basicConfig(format="%(asctime)s|%(levelname)s|%(message)s", level=logging.INFO)
 
     # Input data paths
-    stationsXlsx = "../data/2014-10-29/nrfa/WalesStations.xlsx"
-    gridSquaresShp = "../data/2014-10-29/gb-grids_654971/100km_grid_region.shp"
+    stationsXlsx = "../data/2014-11-04/nrfa/WalesStations.xlsx"
+    gridSquaresShp = "../data/2014-11-04/gb-grids_654971/100km_grid_region.shp"
 
     # Output paths
     outDir = "../results"
