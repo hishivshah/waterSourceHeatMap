@@ -30,6 +30,22 @@ import os
 import glob
 import datetime
 import sqlite3
+import ogr
+
+def getGridSquareMinXY(gridSquaresShp):
+    """Reads in grid square shapefiles, returns dictionary in format of
+       {gridSquareCode:(minX,minY)."""
+    
+    dataSource = ogr.Open(gridSquaresShp)
+    layer = dataSource.GetLayer()
+    gridSquares = {}
+    for feature in layer:
+        gridSq = feature.GetField("GRIDSQ")
+        geom = feature.GetGeometryRef()
+        minX, maxX, minY, maxY = geom.GetEnvelope()
+        gridSquares[gridSq] = (minX, minY)
+
+    return gridSquares
 
 def readGmfCsv(gmfCsv):
     """ Read in Gauged Monthly Flows csv file. Returns dictionaries of
@@ -46,6 +62,25 @@ def readGmfCsv(gmfCsv):
 
     return d
 
+def calcStationCoords(station, gridSquares):
+    """ Calculates easting, northing and coordinate precision from the
+        station grid reference. Returns dictionary with the additional
+        keys."""
+
+    # calculate coordinates and precision
+    gridRef = station["gridReference"]
+    gridCode = gridRef[:2]
+    station["precision"] = 10 ** (5 - len(gridRef[2:])/2) # Units: meters
+    station["easting"] = gridSquares[gridCode][0] \
+                         + int(gridRef[2:len(gridRef[2:])/2 + 2]) \
+                         * station["precision"]
+    station["northing"] = gridSquares[gridCode][1] \
+                          + int(gridRef[len(gridRef[2:])/2 + 2:]) \
+                          * station["precision"]
+
+    return station
+
+
 if __name__ == "__main__":
 
     # Input paths
@@ -56,6 +91,10 @@ if __name__ == "__main__":
     outDb = os.path.join(outDir,
                          "%s.sqlite" \
                          % datetime.datetime.now().strftime("%Y-%m-%dT%H%M"))
+    gridSquaresShp = "../data/2014-10-29/gb-grids_654971/100km_grid_region.shp"
+
+    # Calculate grid square min x and y coordinates
+    gridSquares = getGridSquareMinXY(gridSquaresShp)
 
     # Connect to output database
     db = sqlite3.connect(outDb)
@@ -68,9 +107,14 @@ if __name__ == "__main__":
     cur.execute("""CREATE TABLE IF NOT EXISTS stations (
                    id INTEGER PRIMARY KEY,
                    name TEXT,
-                   gridReference TEXT,
                    stationComment TEXT,
-                   catchmentComment TEXT);""")
+                   catchmentComment TEXT,
+                   geomPrecision INTEGER);""")
+    cur.execute("""SELECT AddGeometryColumn (
+                   'stations',
+                   'geom',
+                   27700,
+                   'POINT');""")
     cur.execute("""CREATE TABLE IF NOT EXISTS dataTypes (
                    id TEXT PRIMARY KEY ON CONFLICT IGNORE,
                    name TEXT,
@@ -98,13 +142,18 @@ if __name__ == "__main__":
     for csvFile in glob.iglob(os.path.join(csvDir, "*.csv")):
         data = readGmfCsv(csvFile)
 
+        # Calcaulte station coordinates
+        data["station"] = calcStationCoords(data["station"], gridSquares)
+
         # Insert data into tables
-        cur.execute("""INSERT INTO stations VALUES (?, ?, ?, ?, ?);""",
+        cur.execute("""INSERT INTO stations VALUES (?, ?, ?, ?, ?, MakePoint(?, ?, 27700));""",
                     (data["station"].get("id"),
                      data["station"].get("name"),
-                     data["station"].get("gridReference"),
                      data["station"].get("stationComment"),
-                     data["station"].get("catchmentComment")))
+                     data["station"].get("catchmentComment"),
+                     data["station"].get("precision"),
+                     data["station"].get("easting"),
+                     data["station"].get("northing")))
         cur.execute("""INSERT INTO dataTypes VALUES (?, ?, ?, ?, ?, ?);""",
                     (data["dataType"].get("id"),
                      data["dataType"].get("name"),
