@@ -1,4 +1,5 @@
-""" Reads in data from Gauged Monthly Flow csv files. Outputs to sqlite database. """
+""" Reads in data from Gauged Monthly Flow csv files. Outputs to sqlite
+    database. """
 
 # The MIT License (MIT) 
 
