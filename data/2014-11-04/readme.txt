@@ -31,3 +31,4 @@ waterTempArchive:
 - Open Government Licence
 - Downloaded from: http://www.geostore.com/environment-agency/WebStore?xml=environment-agency/xml/ogcDataDownload.xml, on 04/11/2014
 - EA_WaterTempArchive_WA.mdb file extracted from Surface_Water_Temp_Archive.zip archive
+- exported form datasheet to sites.csv, data0 table to data0.csv, and tbl_detInfo to detInfo.csv
