@@ -54,7 +54,7 @@ curOut.execute("""CREATE TABLE sites (
                   dataCount INTEGER,
                   detCode INTEGER,
                   sourceCode INTEGER);""")
-curOut.execute("SELECT AddGeometryColumn ('sites', 'geom', 27700, 'POINTZ');")
+curOut.execute("SELECT AddGeometryColumn ('sites', 'geom', 27700, 'POINT');")
 curOut.execute("""CREATE TABLE temperatures (
                   siteId TEXT,
                   year TEXT,
@@ -73,12 +73,14 @@ curIn.execute("""SELECT s.*,
                  m.sourceCode
                  FROM tbl_siteInfo s, tbl_metaData m
                  WHERE s.siteID = m.siteID
-                 AND m.EA_REGION = 'WA';""")
+                 AND m.EA_REGION = 'WA'
+                 AND NOT (s.siteX = 0 AND s.siteY = 0)
+                 AND NOT (s.siteX = 100000 AND s.siteY = 200000)""")
 
 # Insert sites data into sqlite table
 for r in curIn:
     curOut.execute("""INSERT INTO sites VALUES
-                      (?,?,?,?,?,?,?,?,?,?, MakePointZ(?,?,?, 27700));""",
+                      (?,?,?,?,?,?,?,?,?,?, MakePoint(?,?, 27700));""",
                    (r.siteID,
                     r.siteName,
                     r.operatorCode,
@@ -90,8 +92,7 @@ for r in curIn:
                     r.detCode,
                     r.sourceCode,
                     r.siteX,
-                    r.siteY,
-                    r.siteZ))
+                    r.siteY))
 
 # Read in temerature data
 curIn.execute("""SELECT d.siteID,
@@ -105,7 +106,9 @@ curIn.execute("""SELECT d.siteID,
                  (SELECT s.siteID, m.sourceCode
                  FROM tbl_siteInfo AS s, tbl_metadata AS m
                  WHERE s.siteID = m.siteID
-                 AND m.EA_REGION = 'WA') a
+                 AND m.EA_REGION = 'WA'
+                 AND NOT (s.siteX = 0 AND s.siteY = 0)
+                 AND NOT (s.siteX = 100000 AND s.siteY = 200000)) a
                  ON a.siteID = d.siteID
                  AND a.sourceCode = d.sourceCode
                  GROUP BY d.siteID,
