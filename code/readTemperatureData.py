@@ -38,7 +38,7 @@ outFile = os.path.join(outDir,
                      "%s.sqlite" % datetime.now().strftime("%Y-%m-%dT%H%M"))
 dbOut = sqlite3.connect(outFile)
 dbOut.enable_load_extension(True)
-dbOut.load_extension("mod_spatialite")
+dbOut.load_extension("spatialite")
 curOut = dbOut.cursor()
 curOut.execute("SELECT InitSpatialMetaData(1);")
 

@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # Connect to output database
     db = sqlite3.connect(outDb)
     db.enable_load_extension(True)
-    db.load_extension("mod_spatialite")
+    db.load_extension("spatialite")
     cur = db.cursor()
     cur.execute("SELECT InitSpatialMetaData(1);")
 
