@@ -29,7 +29,6 @@ import os
 import glob
 import zipfile
 import tempfile
-import sys
 import shutil
 import subprocess
 
