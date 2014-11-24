@@ -49,7 +49,7 @@ if __name__ == "__main__":
     clipperWkt = "../results/clipper.wkt"
 
     # Outputs
-    sqliteDb = "../results/rivers.sqlite"
+    sqliteDb = "../results/2014-11-24.sqlite"
 
     # Read in clipper
     with open(clipperWkt, "r") as f:
@@ -67,35 +67,35 @@ try:
     cur.execute("SELECT InitSpatialMetaData(1);")
 
     # Create temp table
-    cur.execute("DROP TABLE IF EXISTS riversTmp;")
-    cur.execute("""CREATE TABLE riversTmp (code INTEGER,
+    cur.execute("DROP TABLE IF EXISTS osRiversTmp;")
+    cur.execute("""CREATE TABLE osRiversTmp (code INTEGER,
                                            id TEXT,
                                            name TEXT);""")
-    cur.execute("""SELECT AddGeometryColumn('riversTmp',
+    cur.execute("""SELECT AddGeometryColumn('osRiversTmp',
                                             'geom',
                                             27700,
                                             'LINESTRING');""")
     # Insert features
-    cur.executemany("""INSERT INTO riversTmp (code, id, name, geom)
+    cur.executemany("""INSERT INTO osRiversTmp (code, id, name, geom)
                        VALUES (?, ?, ?, GeomFromText(?, 27700));""",
                     rivers)
     
     # Create final table
-    cur.execute("DROP TABLE IF EXISTS rivers;")
-    cur.execute("""CREATE TABLE rivers (code INTEGER,
+    cur.execute("DROP TABLE IF EXISTS osRivers;")
+    cur.execute("""CREATE TABLE osRivers (code INTEGER,
                                         id TEXT PRIMARY KEY,
                                         name TEXT);""")
-    cur.execute("""SELECT AddGeometryColumn('rivers',
+    cur.execute("""SELECT AddGeometryColumn('osRivers',
                                             'geom',
                                             27700,
                                             'LINESTRING');""")
-    cur.execute("""INSERT INTO rivers
+    cur.execute("""INSERT INTO osRivers
                    SELECT code, id, name, ST_LineMerge(ST_Union(geom)) AS geom
-                   FROM riversTmp
+                   FROM osRiversTmp
                    GROUP BY id;""")
 
     # Drop temp table
-    cur.execute("DROP TABLE riversTmp;")
+    cur.execute("DROP TABLE osRiversTmp;")
     
 finally:
     # Commit changes

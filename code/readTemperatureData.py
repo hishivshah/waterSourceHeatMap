@@ -24,106 +24,114 @@
 import pyodbc
 import sqlite3
 import os
-from datetime import datetime
 
 # Connect to input Access database
 mdb = "../data/2014-11-14/waterTempArchive/EA_WaterTempArchive_WA.mdb"
 drv = "{Microsoft Access Driver (*.mdb, *.accdb)}"
 dbIn = pyodbc.connect("Driver=%s;Dbq=%s" % (drv, mdb))
-curIn = dbIn.cursor()
 
 # Connect to output sqlite database
-outDir = "../results"
-outFile = os.path.join(outDir,
-                     "%s.sqlite" % datetime.now().strftime("%Y-%m-%dT%H%M"))
+outFile = "../results/2014-11-24.sqlite"
 dbOut = sqlite3.connect(outFile)
 dbOut.enable_load_extension(True)
 dbOut.load_extension("spatialite")
-curOut = dbOut.cursor()
-curOut.execute("SELECT InitSpatialMetaData(1);")
+dbOut.execute("SELECT InitSpatialMetaData(1);")
 
-# Create tables
-curOut.execute("""CREATE TABLE sites (
-                  siteId TEXT PRIMARY KEY,
-                  siteName TEXT,
-                  operatorCode TEXT,
-                  siteType TEXT,
-                  siteComment TEXT,
-                  startDate TEXT,
-                  endDate TEXT,
-                  dataCount INTEGER,
-                  detCode INTEGER,
-                  sourceCode INTEGER);""")
-curOut.execute("SELECT AddGeometryColumn ('sites', 'geom', 27700, 'POINT');")
-curOut.execute("""CREATE TABLE temperatures (
-                  siteId TEXT,
-                  year TEXT,
-                  month TEXT,
-                  detCode INTEGER,
-                  meanTemp REAL,
-                  sourceCode TEXT,
-                  FOREIGN KEY(siteId) REFERENCES sites(siteId));""")
+try:
+    # Create cursors
+    curIn = dbIn.cursor()
+    curOut = dbOut.cursor()  
+    
+    # Create tables
+    curOut.execute("DROP TABLE IF EXISTS eaSites;")
+    curOut.execute("""CREATE TABLE eaSites (
+                      siteId TEXT PRIMARY KEY,
+                      siteName TEXT,
+                      operatorCode TEXT,
+                      siteType TEXT,
+                      siteComment TEXT,
+                      startDate TEXT,
+                      endDate TEXT,
+                      dataCount INTEGER,
+                      detCode INTEGER,
+                      sourceCode INTEGER);""")
+    curOut.execute("""SELECT AddGeometryColumn ('eaSites',
+                                                'geom',
+                                                27700,
+                                                'POINT');""")
 
-# Read in sites data
-curIn.execute("""SELECT s.*,
-                 m.startDate,
-                 m.endDate,
-                 m.dataCount,
-                 m.detCode,
-                 m.sourceCode
-                 FROM tbl_siteInfo s, tbl_metaData m
-                 WHERE s.siteID = m.siteID
-                 AND m.EA_REGION = 'WA'
-                 AND NOT (s.siteX = 0 AND s.siteY = 0)
-                 AND NOT (s.siteX = 100000 AND s.siteY = 200000)""")
+    curOut.execute("DROP TABLE IF EXISTS eaTemperatures;")
+    curOut.execute("""CREATE TABLE eaTemperatures (
+                      siteId TEXT,
+                      year TEXT,
+                      month TEXT,
+                      detCode INTEGER,
+                      meanTemp REAL,
+                      sourceCode TEXT,
+                      FOREIGN KEY(siteId) REFERENCES eaSites(siteId));""")
 
-# Insert sites data into sqlite table
-for r in curIn:
-    curOut.execute("""INSERT INTO sites VALUES
-                      (?,?,?,?,?,?,?,?,?,?, MakePoint(?,?, 27700));""",
-                   (r.siteID,
-                    r.siteName,
-                    r.operatorCode,
-                    r.siteType,
-                    r.siteComment,
-                    r.startDate,
-                    r.endDate,
-                    r.dataCount,
-                    r.detCode,
-                    r.sourceCode,
-                    r.siteX,
-                    r.siteY))
+    # Read in sites data
+    curIn.execute("""SELECT s.*,
+                     m.startDate,
+                     m.endDate,
+                     m.dataCount,
+                     m.detCode,
+                     m.sourceCode
+                     FROM tbl_siteInfo s, tbl_metaData m
+                     WHERE s.siteID = m.siteID
+                     AND m.EA_REGION = 'WA'
+                     AND NOT (s.siteX = 0 AND s.siteY = 0)
+                     AND NOT (s.siteX = 100000 AND s.siteY = 200000)""")
 
-# Read in temerature data
-curIn.execute("""SELECT d.siteID,
-                 YEAR(d.sampleDate) AS year,
-                 MONTH(d.sampleDate) AS month,
-                 d.detCode,
-                 avg(d.detResult) as meanTemp,
-                 d.sourceCode
-                 FROM data0 d
-                 INNER JOIN
-                 (SELECT s.siteID, m.sourceCode
-                 FROM tbl_siteInfo AS s, tbl_metadata AS m
-                 WHERE s.siteID = m.siteID
-                 AND m.EA_REGION = 'WA'
-                 AND NOT (s.siteX = 0 AND s.siteY = 0)
-                 AND NOT (s.siteX = 100000 AND s.siteY = 200000)) a
-                 ON a.siteID = d.siteID
-                 AND a.sourceCode = d.sourceCode
-                 GROUP BY d.siteID,
-                 YEAR(d.sampleDate),
-                 MONTH(d.sampleDate),
-                 d.detCode,
-                 d.sourceCode;""")
+    # Insert sites data into sqlite table
+    for r in curIn:
+        curOut.execute("""INSERT INTO eaSites VALUES
+                          (?,?,?,?,?,?,?,?,?,?, MakePoint(?,?, 27700));""",
+                       (r.siteID,
+                        r.siteName,
+                        r.operatorCode,
+                        r.siteType,
+                        r.siteComment,
+                        r.startDate,
+                        r.endDate,
+                        r.dataCount,
+                        r.detCode,
+                        r.sourceCode,
+                        r.siteX,
+                        r.siteY))
 
-# Insert temperature data into sqlite table
-for r in curIn:
-    curOut.execute("INSERT INTO temperatures VALUES (?, ?, ?, ?, ?, ?);", r)
+    # Read in temerature data
+    curIn.execute("""SELECT d.siteID,
+                     YEAR(d.sampleDate) AS year,
+                     MONTH(d.sampleDate) AS month,
+                     d.detCode,
+                     avg(d.detResult) as meanTemp,
+                     d.sourceCode
+                     FROM data0 d
+                     INNER JOIN
+                     (SELECT s.siteID, m.sourceCode
+                     FROM tbl_siteInfo AS s, tbl_metadata AS m
+                     WHERE s.siteID = m.siteID
+                     AND m.EA_REGION = 'WA'
+                     AND NOT (s.siteX = 0 AND s.siteY = 0)
+                     AND NOT (s.siteX = 100000 AND s.siteY = 200000)) a
+                     ON a.siteID = d.siteID
+                     AND a.sourceCode = d.sourceCode
+                     GROUP BY d.siteID,
+                     YEAR(d.sampleDate),
+                     MONTH(d.sampleDate),
+                     d.detCode,
+                     d.sourceCode;""")
 
-# Close Access database connection
-dbIn.close()
+    # Insert temperature data into sqlite table
+    for r in curIn:
+        curOut.execute("""INSERT INTO eaTemperatures
+                           VALUES (?, ?, ?, ?, ?, ?);""", r)
 
-# Commit changes and close sqlite connection
-dbOut.commit()
-dbOut.close()
+finally:
+    # Close Access database connection
+    dbIn.close()
+
+    # Commit changes and close sqlite connection
+    dbOut.commit()
+    dbOut.close()

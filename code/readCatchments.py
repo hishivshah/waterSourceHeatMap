@@ -28,7 +28,7 @@ import datetime
 # Catchments shapefile
 catchmentsShp = "../data/2014-11-14/nrfa/NRFA Catchment Boundary Retrieval/NRFA Catchment Boundary Retrieval_Hishiv Shah.shp"
 # Sqlite database
-sqliteDb = "../results/catchments.sqlite"
+sqliteDb = "../results/2014-11-24.sqlite"
 
 # Read catchments shapefile
 dataSource = ogr.Open(catchmentsShp)
@@ -43,14 +43,14 @@ try:
     cur.execute("SELECT InitSpatialMetaData(1);")
 
     # Create table
-    cur.execute("DROP TABLE IF EXISTS catchments;")
-    cur.execute("""CREATE TABLE catchments (
+    cur.execute("DROP TABLE IF EXISTS nrfaCatchments;")
+    cur.execute("""CREATE TABLE nrfaCatchments (
                    id INTEGER PRIMARY KEY,
                    exported TEXT,
                    source TEXT,
                    version REAL);""")
     cur.execute("""SELECT AddGeometryColumn(
-                   'catchments',
+                   'nrfaCatchments',
                    'geom',
                    27700,
                    'POLYGON');""")
@@ -64,7 +64,7 @@ try:
         version = feature.GetField("VERSION")
         geom = feature.GetGeometryRef().ExportToWkt()
 
-        cur.execute("""INSERT INTO catchments
+        cur.execute("""INSERT INTO nrfaCatchments
                        (id, exported, source, version, geom)
                        VALUES (?, ?, ?, ?, GeomFromText(?, 27700));""",
                     (_id, exported, source, version, geom))
