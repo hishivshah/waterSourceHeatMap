@@ -83,7 +83,7 @@ try:
     # Create final table
     cur.execute("DROP TABLE IF EXISTS rivers;")
     cur.execute("""CREATE TABLE rivers (code INTEGER,
-                                        id INTEGER,
+                                        id INTEGER PRIMARY KEY,
                                         name TEXT);""")
     cur.execute("""SELECT AddGeometryColumn('rivers',
                                             'geom',
