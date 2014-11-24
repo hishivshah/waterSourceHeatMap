@@ -69,7 +69,7 @@ try:
     # Create temp table
     cur.execute("DROP TABLE IF EXISTS riversTmp;")
     cur.execute("""CREATE TABLE riversTmp (code INTEGER,
-                                           id INTEGER,
+                                           id TEXT,
                                            name TEXT);""")
     cur.execute("""SELECT AddGeometryColumn('riversTmp',
                                             'geom',
@@ -83,14 +83,14 @@ try:
     # Create final table
     cur.execute("DROP TABLE IF EXISTS rivers;")
     cur.execute("""CREATE TABLE rivers (code INTEGER,
-                                        id INTEGER PRIMARY KEY,
+                                        id TEXT PRIMARY KEY,
                                         name TEXT);""")
     cur.execute("""SELECT AddGeometryColumn('rivers',
                                             'geom',
                                             27700,
                                             'LINESTRING');""")
     cur.execute("""INSERT INTO rivers
-                   SELECT code, id, name, ST_Union(geom) AS geom
+                   SELECT code, id, name, ST_LineMerge(ST_Union(geom)) AS geom
                    FROM riversTmp
                    GROUP BY id;""")
 
