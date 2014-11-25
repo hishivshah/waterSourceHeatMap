@@ -28,7 +28,7 @@ import datetime
 # Catchments shapefile
 catchmentsShp = "../data/2014-11-14/nrfa/NRFA Catchment Boundary Retrieval/NRFA Catchment Boundary Retrieval_Hishiv Shah.shp"
 # Sqlite database
-sqliteDb = "../results/2014-11-24.sqlite"
+sqliteDb = "../results/2014-11-25.sqlite"
 
 # Read catchments shapefile
 dataSource = ogr.Open(catchmentsShp)
@@ -68,6 +68,9 @@ try:
                        (id, exported, source, version, geom)
                        VALUES (?, ?, ?, ?, GeomFromText(?, 27700));""",
                     (_id, exported, source, version, geom))
+
+    # Create spatial index
+    cur.execute("SELECT CreateSpatialIndex('nrfaCatchments', 'geom');")
 
 finally:
     # Commit changes

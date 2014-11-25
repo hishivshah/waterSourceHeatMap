@@ -87,7 +87,7 @@ if __name__ == "__main__":
     gridSquaresShp = "../data/2014-11-14/gb-grids_654971/100km_grid_region.shp"
 
     # Output paths
-    outDb = "../results/2014-11-24.sqlite"
+    outDb = "../results/2014-11-25.sqlite"
 
     # Calculate grid square min x and y coordinates
     gridSquares = getGridSquareMinXY(gridSquaresShp)
@@ -178,6 +178,9 @@ if __name__ == "__main__":
                           k,
                           v)
                          for k, v in data["gmf"].iteritems()])
+
+        # Create spatial index
+        cur.execute("SELECT CreateSpatialIndex('nrfaStations', 'geom');")
 
     finally:
         # Commit changes and close database

@@ -31,7 +31,7 @@ drv = "{Microsoft Access Driver (*.mdb, *.accdb)}"
 dbIn = pyodbc.connect("Driver=%s;Dbq=%s" % (drv, mdb))
 
 # Connect to output sqlite database
-outFile = "../results/2014-11-24.sqlite"
+outFile = "../results/2014-11-25.sqlite"
 dbOut = sqlite3.connect(outFile)
 dbOut.enable_load_extension(True)
 dbOut.load_extension("spatialite")
@@ -127,6 +127,9 @@ try:
     for r in curIn:
         curOut.execute("""INSERT INTO eaTemperatures
                            VALUES (?, ?, ?, ?, ?, ?);""", r)
+
+    # Create spatial index
+    curOut.execute("SELECT CreateSpatialIndex('eaSites', 'geom');")
 
 finally:
     # Close Access database connection

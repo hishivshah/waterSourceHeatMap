@@ -49,7 +49,7 @@ if __name__ == "__main__":
     clipperWkt = "../results/clipper.wkt"
 
     # Outputs
-    sqliteDb = "../results/2014-11-24.sqlite"
+    sqliteDb = "../results/2014-11-25.sqlite"
 
     # Read in clipper
     with open(clipperWkt, "r") as f:
@@ -93,6 +93,7 @@ try:
                    SELECT code, id, name, ST_LineMerge(ST_Union(geom)) AS geom
                    FROM osRiversTmp
                    GROUP BY id;""")
+    cur.execute("SELECT CreateSpatialIndex('osRivers', 'geom');")
 
     # Drop temp table
     cur.execute("DROP TABLE osRiversTmp;")
