@@ -61,8 +61,7 @@ def createDtmTiff(asciiDir, tileList, outTiff):
         # Run gdal merge
         subprocess.check_call(["python", "C:/OSGeo4W64/bin/gdal_merge.py",
                                "-o", outTiff,
-                               "-a_nodata", "-9999",
-                               "-co", "COMPRESS=LZW"] \
+                               "-a_nodata", "-9999"] \
                               + glob.glob(os.path.join(tmpDir, "*.asc")))
 
     finally:
