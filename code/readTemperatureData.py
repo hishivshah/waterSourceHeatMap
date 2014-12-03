@@ -31,7 +31,7 @@ drv = "{Microsoft Access Driver (*.mdb, *.accdb)}"
 dbIn = pyodbc.connect("Driver=%s;Dbq=%s" % (drv, mdb))
 
 # Connect to output sqlite database
-outFile = "../results/2014-11-25.sqlite"
+outFile = "../results/2014-12-03.sqlite"
 dbOut = sqlite3.connect(outFile)
 dbOut.enable_load_extension(True)
 dbOut.load_extension("spatialite")
