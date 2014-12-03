@@ -49,18 +49,21 @@ try:
     # Calculate mean monthly flow rate for last 5 years of data
     cur.execute("DROP TABLE IF EXISTS monthlyFlowRates;")
     cur.execute("""CREATE TABLE monthlyFlowRates AS
-                   SELECT l.river AS riverId,
+                   SELECT r.id AS riverId,
                           STRFTIME("%m", gmf.month||"-01") AS month,
-                          AVG(gmf.flow) AS flow
-                   FROM nrfaRiverLookup l, nrfaData d, nrfaGmf gmf
+                          AVG(gmf.flow) AS flow,
+                          AVG(gmf.flow) * 8.36 AS heatMW,
+                          ST_Length(r.geom) * 0.02 AS limitMW
+                   FROM nrfaRiverLookup l, nrfaData d, nrfaGmf gmf, osRivers r
                    WHERE d.station = l.station
                    AND gmf.station = l.station
+                   AND l.river = r.id
                    AND DATE(first||"-01") <= DATE("2008-10-01")
                    AND last = "2013-09"
                    AND DATE(gmf.month||"-01")
                        BETWEEN DATE("2008-10-01")
                        AND DATE("2013-09-01")
-                   GROUP BY l.river, STRFTIME("%m", gmf.month||"-01");""")
+                   GROUP BY r.id, STRFTIME("%m", gmf.month||"-01");""")
 
     # Calculate annual heat production in GWh per year
     cur.execute("DROP TABLE IF EXISTS annualHeat;")
@@ -71,7 +74,7 @@ try:
                                             27700,
                                             'LINESTRING');""")
     cur.execute("""INSERT INTO annualHeat
-                   SELECT r.id, SUM(mf.flow * 6.1028), r.geom
+                   SELECT r.id, SUM(MIN(heatMW, limitMW) * 0.73), r.geom
                    FROM osRivers r, monthlyFlowRates mf
                    WHERE r.id = mf.riverId
                    GROUP BY r.id;""")
