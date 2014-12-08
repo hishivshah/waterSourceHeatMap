@@ -71,32 +71,33 @@ if __name__ == "__main__":
     # Merge river lines
     mergedRivers = mergeRiverLines(rivers)
 
-# Connect to output database
-try:
+    # Connect to output database
     db = sqlite3.connect(sqliteDb)
-    db.enable_load_extension(True)
-    db.load_extension("spatialite")
-    cur = db.cursor()
-    cur.execute("SELECT InitSpatialMetaData(1);")
+    try:
+        db.enable_load_extension(True)
+        db.load_extension("spatialite")
+        cur = db.cursor()
+        cur.execute("SELECT InitSpatialMetaData(1);")
 
-    # Create temp table
-    cur.execute("DROP TABLE IF EXISTS osRivers;")
-    cur.execute("CREATE TABLE osRivers (id INTEGER PRIMARY KEY AUTOINCREMENT);")
-    cur.execute("""SELECT AddGeometryColumn('osRivers',
-                                            'geom',
-                                            27700,
-                                            'LINESTRING');""")
-    # Insert features
-    cur.executemany("""INSERT INTO osRivers (geom)
-                       VALUES (GeomFromText(?, 27700));""",
-                    [(geom,) for geom in mergedRivers])
+        # Create temp table
+        cur.execute("DROP TABLE IF EXISTS osRivers;")
+        cur.execute("""CREATE TABLE osRivers
+                       (id INTEGER PRIMARY KEY AUTOINCREMENT);""")
+        cur.execute("""SELECT AddGeometryColumn('osRivers',
+                                                'geom',
+                                                27700,
+                                                'LINESTRING');""")
+        # Insert features
+        cur.executemany("""INSERT INTO osRivers (geom)
+                           VALUES (GeomFromText(?, 27700));""",
+                        [(geom,) for geom in mergedRivers])
 
-    # Create spatial index
-    cur.execute("SELECT CreateSpatialIndex('osRivers', 'geom');")
+        # Create spatial index
+        cur.execute("SELECT CreateSpatialIndex('osRivers', 'geom');")
 
 
-finally:
-    # Commit changes
-    db.commit()
-    # Close database
-    db.close()
+    finally:
+        # Commit changes
+        db.commit()
+        # Close database
+        db.close()
