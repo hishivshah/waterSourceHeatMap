@@ -6,7 +6,7 @@ gb-grids_654971:
 - currency: 2012
 - source: EDINA Digimap
 - licence: OS Open Data
-- Copyright: Contains Ordnance Survey data © Crown copyright and database right 2014
+- Copyright: Contains Ordnance Survey data Â© Crown copyright and database right 2014
 
 meridian2_national_653496:
 - Ordnance Survey Meridian 2
@@ -16,7 +16,7 @@ meridian2_national_653496:
 - currency: July 2014
 - source: EDINA Digimap
 - licence: OS Open Data
-- Copyright: Contains Ordnance Survey data © Crown copyright and database right 2014
+- Copyright: Contains Ordnance Survey data Â© Crown copyright and database right 2014
 
 nrfa:
 - National River Flow Archive
@@ -33,7 +33,7 @@ terr50_gagg_gb
 - currency: 07/2014
 - source: https://www.ordnancesurvey.co.uk/opendatadownload/products.html
 - licence: OS Open Data
-- Copyright: Contains Ordnance Survey data © Crown copyright and database right 2014
+- Copyright: Contains Ordnance Survey data Â© Crown copyright and database right 2014
 
 waterTempArchive:
 - Environment Agency Surface Water Temperature Archive up to 2007
