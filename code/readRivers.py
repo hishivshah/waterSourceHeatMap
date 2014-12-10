@@ -27,13 +27,12 @@ import shapely
 import shapely.wkt
 import shapely.ops
 
-def readRivers(riversShp, clipper):
+def readRivers(riversShp):
     '''Read medium and large river lines from shapefile, return list of wkt
        geometries.'''
 
     dataSource = ogr.Open(riversShp)
     layer = dataSource.GetLayer()
-    layer.SetSpatialFilter(ogr.CreateGeometryFromWkt(clipper))
     layer.SetAttributeFilter("CODE IN (6224, 6225)")
 
     data = []
@@ -56,17 +55,12 @@ if __name__ == "__main__":
 
     # Inputs
     riversShp = "../data/2014-11-14/meridian2_national_653496/river_polyline.shp"
-    clipperWkt = "../results/clipper.wkt"
 
     # Outputs
-    sqliteDb = "../results/2014-12-03.sqlite"
-
-    # Read in clipper
-    with open(clipperWkt, "r") as f:
-        clipper = f.read()
+    sqliteDb = "../results/2014-12-10.sqlite"
 
     # Read in rivers
-    rivers = readRivers(riversShp, clipper)
+    rivers = readRivers(riversShp)
 
     # Merge river lines
     mergedRivers = mergeRiverLines(rivers)

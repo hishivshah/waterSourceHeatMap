@@ -87,7 +87,7 @@ if __name__ == "__main__":
     gridSquaresShp = "../data/2014-11-14/gb-grids_654971/100km_grid_region.shp"
 
     # Output paths
-    outDb = "../results/2014-12-03.sqlite"
+    outDb = "../results/2014-12-10.sqlite"
 
     # Calculate grid square min x and y coordinates
     gridSquares = getGridSquareMinXY(gridSquaresShp)
