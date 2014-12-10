@@ -29,6 +29,7 @@ import collections
 import os
 import glob
 import sqlite3
+
 import ogr
 
 def getGridSquareMinXY(gridSquaresShp):

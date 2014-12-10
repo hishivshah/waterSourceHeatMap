@@ -23,10 +23,11 @@
 
 import subprocess
 import logging
-import ogr
 import tempfile
 import os
 import shutil
+
+import ogr
 
 # Logging config
 logging.basicConfig(format="%(asctime)s|%(levelname)s|%(message)s",

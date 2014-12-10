@@ -21,9 +21,10 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import ogr
 import sqlite3
 import datetime
+
+import ogr
 
 # Catchments shapefile
 catchmentsShp = "../data/2014-11-14/nrfa/NRFA Catchment Boundary Retrieval/NRFA Catchment Boundary Retrieval_Hishiv Shah.shp"

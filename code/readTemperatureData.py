@@ -21,9 +21,10 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import pyodbc
-import sqlite3
 import os
+import sqlite3
+
+import pyodbc
 
 # Connect to input Access database
 mdb = "../data/2014-11-14/waterTempArchive/EA_WaterTempArchive_WA.mdb"
