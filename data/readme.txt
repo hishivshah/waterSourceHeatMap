@@ -1,3 +1,6 @@
+2015-01-12
+- Added energy demand data
+
 2014-11-14
 - Added OS Terrain 50 DTM
 
