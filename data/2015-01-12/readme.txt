@@ -6,6 +6,8 @@ energyDemand2009:
 - currency: 2009
 - downloaded from: http://data.ukedc.rl.ac.uk/cgi-bin/dataset_catalogue//view.cgi.py?id=16, on 12/01/2015
 - licence: free to use, attribution required
+- renamed file extension to .csv
+- created GDAL vrt file
 
 gb-grids_654971:
 - Ordnance Survey Grid Squares
