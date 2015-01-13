@@ -27,7 +27,7 @@ import datetime
 import ogr
 
 # Catchments shapefile
-catchmentsShp = "../data/2014-11-14/nrfa/NRFA Catchment Boundary Retrieval/NRFA Catchment Boundary Retrieval_Hishiv Shah.shp"
+catchmentsShp = "../data/2015-01-12/nrfa/NRFA Catchment Boundary Retrieval/NRFA Catchment Boundary Retrieval_Hishiv Shah.shp"
 # Sqlite database
 sqliteDb = "../results/2014-12-10.sqlite"
 
