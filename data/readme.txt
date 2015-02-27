@@ -1,5 +1,6 @@
 2015-02-27
 - Updated OS Meridian 2 data
+- Removed water temperature data
 
 2015-01-12
 - Added energy demand data
