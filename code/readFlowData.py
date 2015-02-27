@@ -84,8 +84,8 @@ def calcStationCoords(station, gridSquares):
 if __name__ == "__main__":
 
     # Input paths
-    csvDir  = "../data/2015-01-12/nrfa/NRFA Flow Data Retrieval"
-    gridSquaresShp = "../data/2015-01-12/gb-grids_654971/100km_grid_region.shp"
+    csvDir  = "../data/2015-02-27/nrfa/NRFA Flow Data Retrieval"
+    gridSquaresShp = "../data/2015-02-27/gb-grids_654971/100km_grid_region.shp"
 
     # Output paths
     outDb = "../results/2014-12-10.sqlite"

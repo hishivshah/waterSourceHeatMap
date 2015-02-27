@@ -27,7 +27,7 @@ import numpy
 import gdal
 import osr
 
-csvPath = "../data/2015-01-12/energyDemand2009/2009_base_data.csv"
+csvPath = "../data/2015-02-27/energyDemand2009/2009_base_data.csv"
 cellSize = 1000
 outTiff = "../results/heatDemand2009.tiff"
 

@@ -72,11 +72,11 @@ def createDtmTiff(asciiDir, tileList, outTiff):
 if __name__ == "__main__":
 
     # Grid squares shapefile
-    gridShp = "../data/2015-01-12/gb-grids_654971/10km_grid_region.shp"
+    gridShp = "../data/2015-02-27/gb-grids_654971/10km_grid_region.shp"
     # Clipper wkt file
     clipperWkt = "../results/clipper.wkt"
     # DTM data folder
-    dtmDir = "../data/2015-01-12/terr50_gagg_gb/data"
+    dtmDir = "../data/2015-02-27/terr50_gagg_gb/data"
     # Out tiff
     outTiff = "../results/osTerrain50.tif"
 

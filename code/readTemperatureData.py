@@ -27,7 +27,7 @@ import sqlite3
 import pyodbc
 
 # Connect to input Access database
-mdb = "../data/2015-01-12/waterTempArchive/EA_WaterTempArchive_WA.mdb"
+mdb = "../data/2015-02-27/waterTempArchive/EA_WaterTempArchive_WA.mdb"
 drv = "{Microsoft Access Driver (*.mdb, *.accdb)}"
 dbIn = pyodbc.connect("Driver=%s;Dbq=%s" % (drv, mdb))
 try:

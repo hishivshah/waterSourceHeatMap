@@ -61,7 +61,7 @@ def readCatchments(catchmentsShp):
 if __name__ == "__main__":
 
     # District shapefile path
-    dstShp = "../data/2015-01-12/meridian2_national_653496/district_region.shp"
+    dstShp = "../data/2015-02-27/meridian2_national_841398/district_region.shp"
     # Welsh district names
     districtNames = ['GWYNEDD - GWYNEDD',
                      'SIR Y FFLINT - FLINTSHIRE',
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                      'ABERTAWE - SWANSEA',
                      'CAERDYDD - CARDIFF']
     # Catchments shapefile
-    catchmentsShp = "../data/2015-01-12/nrfa/NRFA Catchment Boundary Retrieval/NRFA Catchment Boundary Retrieval_Hishiv Shah.shp"
+    catchmentsShp = "../data/2015-02-27/nrfa/NRFA Catchment Boundary Retrieval/NRFA Catchment Boundary Retrieval_Hishiv Shah.shp"
     # Output file
     clipperWkt = "../results/clipper.wkt"
 

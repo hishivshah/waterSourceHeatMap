@@ -55,7 +55,7 @@ def mergeRiverLines(geomList):
 if __name__ == "__main__":
 
     # Inputs
-    riversShp = "../data/2015-01-12/meridian2_national_653496/river_polyline.shp"
+    riversShp = "../data/2015-02-27/meridian2_national_653496/river_polyline.shp"
 
     # Outputs
     sqliteDb = "../results/2014-12-10.sqlite"
