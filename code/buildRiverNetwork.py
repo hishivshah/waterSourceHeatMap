@@ -2,7 +2,7 @@ import sqlite3
 
 
 # Database path
-sqliteDb = "../results/2015-03-04.sqlite"
+sqliteDb = "../results/2015-03-05.sqlite"
 
 # Connect to database
 with sqlite3.connect(sqliteDb) as db:
@@ -17,7 +17,8 @@ with sqlite3.connect(sqliteDb) as db:
                    id TEXT PRIMARY KEY,
                    code INTEGER,
                    startNodeId INTEGER,
-                   endNodeId INTEGER);""")
+                   endNodeId INTEGER,
+                   upstreamLength NUMERIC);""")
     cur.execute("""SELECT AddGeometryColumn('riverEdges',
                                             'geometry',
                                             27700,
@@ -42,7 +43,8 @@ with sqlite3.connect(sqliteDb) as db:
                    WHERE f_table_name = 'osRivers'
                    AND search_frame = s.geometry))
                    INSERT INTO riverEdges (id, code, geometry)
-                   SELECT identifier, code, ST_LineMerge(ST_Union(geometry))
+                   SELECT identifier, code,
+                          CastToLineString(ST_LineMerge(ST_Collect(geometry)))
                    FROM results
                    GROUP BY identifier, code;""")
     cur.execute("SELECT CreateSpatialIndex('riverEdges', 'geometry');")

@@ -10,7 +10,7 @@ riversShp = os.path.join(osMeridian2Dir, "river_polyline.shp")
 coastShp = os.path.join(osMeridian2Dir, "coast_ln_polyline.shp")
 
 # Database path
-sqliteDb = "../results/2015-03-04.sqlite"
+sqliteDb = "../results/2015-03-05.sqlite"
 
 # Welsh district names
 districtNames = ['GWYNEDD - GWYNEDD',
