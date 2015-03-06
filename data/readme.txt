@@ -1,3 +1,6 @@
+2015-03-06
+- created lookup table matching OS Meridian 2 river IDs with NRFA station IDs
+
 2015-02-27
 - Updated OS Meridian 2 data
 - Removed water temperature data
