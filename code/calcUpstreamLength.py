@@ -10,7 +10,7 @@ logging.basicConfig(format="%(asctime)s|%(levelname)s|%(message)s",
                     level=logging.INFO)
 
 # Database path
-sqliteDb = "../results/2015-03-05.sqlite"
+sqliteDb = "../results/2015-03-09.sqlite"
 
 # Create Directed Graph with multiple edges
 logging.info("Creating graph object")

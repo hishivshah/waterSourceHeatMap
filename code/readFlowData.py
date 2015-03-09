@@ -23,6 +23,22 @@ def getGridSquareMinXY(gridSquaresShp):
         gridSquares[gridSq] = (minX, minY)
 
     return gridSquares
+    
+def getRiverIDs(lookupCsv):
+    """Reads in lookup table between station IDs and river IDs. Returns
+       dictionary in format of {stationId : riverId}."""
+       
+    d = {}
+    with open(lookupCsv, "rb") as f:
+        reader = csv.reader(f)
+        
+        # Discard header row
+        reader.next()
+        
+        for row in reader:
+            d[row[0]] = row[1]
+    
+    return d
 
 def readGmfCsv(gmfCsv):
     """ Read in Gauged Monthly Flows csv file. Returns dictionaries of
@@ -56,19 +72,32 @@ def calcStationCoords(station, gridSquares):
                           * station["precision"]
 
     return station
+    
+def addStationRiverID(station, riverIDs):
+    """Adds river ID to station dictionary."""
+    
+    stationID = station["id"]
+    riverID = riverIDs.get(stationID)
+    station["riverId"] = riverID
+    
+    return station
 
 
 if __name__ == "__main__":
 
     # Input paths
-    csvDir  = "../data/2015-02-27/nrfa/NRFA Flow Data Retrieval"
-    gridSquaresShp = "../data/2015-02-27/gb-grids_654971/100km_grid_region.shp"
+    csvDir  = "../data/2015-03-06/nrfa/NRFA Flow Data Retrieval"
+    gridSquaresShp = "../data/2015-03-06/gb-grids_654971/100km_grid_region.shp"
+    lookupCsv = "../data/2015-03-06/riverStationLookup.csv"
 
     # Output paths
-    outDb = "../results/2014-12-10.sqlite"
+    outDb = "../results/2015-03-09.sqlite"
 
     # Calculate grid square min x and y coordinates
     gridSquares = getGridSquareMinXY(gridSquaresShp)
+    
+    # Get river IDs for each station from lookup table
+    riverIDs = getRiverIDs(lookupCsv)
 
     # Connect to output database
     db = sqlite3.connect(outDb)
@@ -85,10 +114,11 @@ if __name__ == "__main__":
                        name TEXT,
                        stationComment TEXT,
                        catchmentComment TEXT,
-                       geomPrecision INTEGER);""")
+                       geomPrecision INTEGER,
+                       riverId TEXT);""")
         cur.execute("""SELECT AddGeometryColumn (
                        'nrfaStations',
-                       'geom',
+                       'geometry',
                        27700,
                        'POINT');""")
 
@@ -126,15 +156,20 @@ if __name__ == "__main__":
 
             # Calculate station coordinates
             data["station"] = calcStationCoords(data["station"], gridSquares)
-
+            
+            # Add river ID to station
+            data["station"] = addStationRiverID(data["station"], riverIDs)
+            
             # Insert data into tables
             cur.execute("""INSERT INTO nrfaStations
-                           VALUES (?, ?, ?, ?, ?, MakePoint(?, ?, 27700));""",
+                           VALUES (?, ?, ?, ?, ?, ?, 
+                                   MakePoint(?, ?, 27700));""",
                         (data["station"].get("id"),
                          data["station"].get("name"),
                          data["station"].get("stationComment"),
                          data["station"].get("catchmentComment"),
                          data["station"].get("precision"),
+                         data["station"].get("riverId"),
                          data["station"].get("easting"),
                          data["station"].get("northing")))
             cur.execute("""INSERT INTO nrfaDataTypes
@@ -158,7 +193,8 @@ if __name__ == "__main__":
                          for k, v in data["gmf"].iteritems()])
 
         # Create spatial index
-        cur.execute("SELECT CreateSpatialIndex('nrfaStations', 'geom');")
+        cur.execute("SELECT DisableSpatialIndex('nrfaStations', 'geometry');")
+        cur.execute("SELECT CreateSpatialIndex('nrfaStations', 'geometry');")
 
     finally:
         # Commit changes and close database
