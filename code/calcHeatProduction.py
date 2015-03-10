@@ -34,8 +34,8 @@ try:
     # Calculate annual heat production in GWh per year
     cur.execute("DROP TABLE IF EXISTS annualHeat;")
     cur.execute("SELECT DisableSpatialIndex('annualHeat', 'geometry');")
-    cur.execute("""CREATE TABLE annualHeat (riverId INTEGER PRIMARY KEY,
-                                          GWhPerYear REAL);""")
+    cur.execute("""CREATE TABLE annualHeat (id TEXT PRIMARY KEY,
+                                            GWhPerYear REAL);""")
     cur.execute("""SELECT AddGeometryColumn('annualHeat',
                                             'geometry',
                                             27700,
