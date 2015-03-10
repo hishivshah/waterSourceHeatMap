@@ -5,40 +5,25 @@
 import sqlite3
 
 # Connect to sqlite database
-sqliteDb = "../results/2014-12-10.sqlite"
+sqliteDb = "../results/2015-03-10.sqlite"
 db = sqlite3.connect(sqliteDb)
 try:
     db.enable_load_extension(True)
     db.load_extension("spatialite")
     cur = db.cursor()
 
-    # Create lookup table matching river IDs to NRFA station IDs
-    cur.execute("DROP TABLE IF EXISTS nrfaRiverLookup;")
-    cur.execute("""CREATE TABLE nrfaRiverLookup AS
-                   SELECT station, river FROM
-                   (SELECT s.id AS station,
-                    r.id AS river,
-                    MIN(ST_Distance(ST_Intersection(ST_Boundary(c.geom),
-                                                    r.geom),
-                                    s.geom)) AS minDist
-                    FROM osRivers r, nrfaCatchments c, nrfaStations s
-                    WHERE ST_Intersects(ST_Boundary(c.geom), r.geom)
-                    AND s.id = c.id
-                    GROUP BY s.id)
-                    WHERE minDist <= 1500;""")
-
     # Calculate mean monthly flow rate for last 5 years of data
     cur.execute("DROP TABLE IF EXISTS monthlyFlowRates;")
     cur.execute("""CREATE TABLE monthlyFlowRates AS
                    SELECT r.id AS riverId,
                           STRFTIME("%m", gmf.month||"-01") AS month,
-                          AVG(gmf.flow) AS flow,
-                          AVG(gmf.flow) * 8.36 AS heatMW,
-                          ST_Length(r.geom) * 0.02 AS limitMW
-                   FROM nrfaRiverLookup l, nrfaData d, nrfaGmf gmf, osRivers r
-                   WHERE d.station = l.station
-                   AND gmf.station = l.station
-                   AND l.river = r.id
+                          AVG(gmf.flow) * r.upstreamLengthRatio AS flow,
+                          AVG(gmf.flow) * r.upstreamLengthRatio * 8.36 AS heatMW,
+                          ST_Length(r.geometry) * 0.02 AS limitMW
+                   FROM nrfaStations s, nrfaData d, nrfaGmf gmf, riverEdges r
+                   WHERE d.station = s.id
+                   AND gmf.station = s.id
+                   AND s.riverId = r.nearestGaugedEdge
                    AND DATE(first||"-01") <= DATE("2008-10-01")
                    AND last = "2013-09"
                    AND DATE(gmf.month||"-01")
@@ -48,17 +33,19 @@ try:
 
     # Calculate annual heat production in GWh per year
     cur.execute("DROP TABLE IF EXISTS annualHeat;")
+    cur.execute("SELECT DisableSpatialIndex('annualHeat', 'geometry');")
     cur.execute("""CREATE TABLE annualHeat (riverId INTEGER PRIMARY KEY,
                                           GWhPerYear REAL);""")
     cur.execute("""SELECT AddGeometryColumn('annualHeat',
-                                            'geom',
+                                            'geometry',
                                             27700,
                                             'LINESTRING');""")
     cur.execute("""INSERT INTO annualHeat
-                   SELECT r.id, SUM(MIN(heatMW, limitMW) * 0.73), r.geom
-                   FROM osRivers r, monthlyFlowRates mf
+                   SELECT r.id, SUM(heatMW * 0.73), r.geometry
+                   FROM riverEdges r, monthlyFlowRates mf
                    WHERE r.id = mf.riverId
                    GROUP BY r.id;""")
+    cur.execute("SELECT CreateSpatialIndex('annualHeat', 'geometry');")
 
 finally:
     # Commit changes and close database
