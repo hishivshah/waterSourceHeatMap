@@ -10,7 +10,7 @@ riversShp = os.path.join(osMeridian2Dir, "river_polyline.shp")
 coastShp = os.path.join(osMeridian2Dir, "coast_ln_polyline.shp")
 
 # Database path
-sqliteDb = "../results/2015-03-09.sqlite"
+sqliteDb = "../results/2015-03-10.sqlite"
 
 # Welsh district names
 districtNames = ['GWYNEDD - GWYNEDD',
@@ -91,7 +91,7 @@ with sqlite3.connect(sqliteDb) as db:
     # Read rivers from shape
     dataSource = ogr.Open(riversShp)
     layer = dataSource.GetLayer()
-    layer.SetAttributeFilter("CODE IN (6223, 6224, 6225, 6230, 6232)")
+    layer.SetAttributeFilter("CODE IN (6224, 6225)")
     
     for feature in layer:
         geometry = feature.GetGeometryRef().ExportToWkt()

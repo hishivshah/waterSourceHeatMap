@@ -91,7 +91,7 @@ if __name__ == "__main__":
     lookupCsv = "../data/2015-03-06/riverStationLookup.csv"
 
     # Output paths
-    outDb = "../results/2015-03-09.sqlite"
+    outDb = "../results/2015-03-10.sqlite"
 
     # Calculate grid square min x and y coordinates
     gridSquares = getGridSquareMinXY(gridSquaresShp)

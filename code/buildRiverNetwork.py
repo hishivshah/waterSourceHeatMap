@@ -2,7 +2,7 @@ import sqlite3
 
 
 # Database path
-sqliteDb = "../results/2015-03-09.sqlite"
+sqliteDb = "../results/2015-03-10.sqlite"
 
 # Connect to database
 with sqlite3.connect(sqliteDb) as db:
@@ -18,7 +18,8 @@ with sqlite3.connect(sqliteDb) as db:
                    code INTEGER,
                    startNodeId INTEGER,
                    endNodeId INTEGER,
-                   upstreamLength NUMERIC);""")
+                   nearestGaugedEdge TEXT,
+                   upstreamLengthRatio NUMERIC);""")
     cur.execute("""SELECT AddGeometryColumn('riverEdges',
                                             'geometry',
                                             27700,
