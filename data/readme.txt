@@ -1,5 +1,6 @@
 2015-03-12
 - Created polygon for Great Britain
+- Removed energy demand data and OS Terrain 50 DTM
 
 2015-03-06
 - created lookup table matching OS Meridian 2 river IDs with NRFA station IDs
