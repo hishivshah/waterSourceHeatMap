@@ -4,7 +4,7 @@ import os
 import ogr
 
 # Inputs
-osMeridian2Dir = "../data/2015-03-06/meridian2_national_841398"
+osMeridian2Dir = "../data/2015-03-12/meridian2_national_841398"
 districtsShp = os.path.join(osMeridian2Dir, "district_region.shp")
 riversShp = os.path.join(osMeridian2Dir, "river_polyline.shp")
 coastShp = os.path.join(osMeridian2Dir, "coast_ln_polyline.shp")

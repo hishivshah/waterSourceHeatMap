@@ -86,9 +86,9 @@ def addStationRiverID(station, riverIDs):
 if __name__ == "__main__":
 
     # Input paths
-    csvDir  = "../data/2015-03-06/nrfa/NRFA Flow Data Retrieval"
-    gridSquaresShp = "../data/2015-03-06/gb-grids_654971/100km_grid_region.shp"
-    lookupCsv = "../data/2015-03-06/riverStationLookup.csv"
+    csvDir  = "../data/2015-03-12/nrfa/NRFA Flow Data Retrieval"
+    gridSquaresShp = "../data/2015-03-12/gb-grids_654971/100km_grid_region.shp"
+    lookupCsv = "../data/2015-03-12/riverStationLookup.csv"
 
     # Output paths
     outDb = "../results/2015-03-10.sqlite"
