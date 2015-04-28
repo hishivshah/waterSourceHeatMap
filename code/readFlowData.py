@@ -1,6 +1,3 @@
-""" Reads in data from Gauged Monthly Flow csv files. Outputs to sqlite
-    database. """
-
 import csv
 import collections
 import os

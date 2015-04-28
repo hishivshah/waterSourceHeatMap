@@ -1,7 +1,3 @@
-'''Calculates the annual heat production in GWh for each river, based
-   on its flow rate. The calculations used are described in more detail
-   in "../docs/heatOutputCalculations.docx".'''
-
 import sqlite3
 
 # Connect to sqlite database
