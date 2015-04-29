@@ -1,4 +1,4 @@
-High Level Water Source Heat Map
+# High Level Water Source Heat Map
 
 Water source heat pumps have the potential to provide low carbon and renewable energy to buildings located near rivers. An assessment of the suitability of major Welsh rivers for water source heat pump deployment has been carried out, and the results summarised on a national scale map.
 
