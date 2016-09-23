@@ -39,7 +39,7 @@ districtNames = ['GWYNEDD - GWYNEDD',
 # Connect to database
 with sqlite3.connect(sqliteDb) as db:
     db.enable_load_extension(True)
-    db.load_extension("spatialite")
+    db.load_extension("mod_spatialite")
     cur = db.cursor()
     cur.execute("SELECT InitSpatialMetaData(1);")
 

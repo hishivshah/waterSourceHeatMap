@@ -5,7 +5,7 @@ sqliteDb = "../results/2015-03-10.sqlite"
 db = sqlite3.connect(sqliteDb)
 try:
     db.enable_load_extension(True)
-    db.load_extension("spatialite")
+    db.load_extension("mod_spatialite")
     cur = db.cursor()
 
     # Calculate mean monthly flow rate for last 5 years of data
