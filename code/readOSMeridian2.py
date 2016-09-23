@@ -4,7 +4,7 @@ import os
 import ogr
 
 # Inputs
-osMeridian2Dir = "../data/2015-03-12/meridian2_national_841398"
+osMeridian2Dir = "../data/meridian2_national_841398"
 districtsShp = os.path.join(osMeridian2Dir, "district_region.shp")
 riversShp = os.path.join(osMeridian2Dir, "river_polyline.shp")
 coastShp = os.path.join(osMeridian2Dir, "coast_ln_polyline.shp")
@@ -42,7 +42,7 @@ with sqlite3.connect(sqliteDb) as db:
     db.load_extension("spatialite")
     cur = db.cursor()
     cur.execute("SELECT InitSpatialMetaData(1);")
-    
+
     # Create districts table
     cur.execute("DROP TABLE IF EXISTS osDistricts;")
     cur.execute("""CREATE TABLE osDistricts (
@@ -64,7 +64,7 @@ with sqlite3.connect(sqliteDb) as db:
                                             'geometry',
                                             27700,
                                             'LINESTRING');""")
-                                            
+
     # Create coastline table
     cur.execute("DROP TABLE IF EXISTS osCoastline;")
     cur.execute("""CREATE TABLE osCoastline (
@@ -72,17 +72,17 @@ with sqlite3.connect(sqliteDb) as db:
     cur.execute("""SELECT AddGeometryColumn('osCoastline',
                                             'geometry',
                                             27700,
-                                            'LINESTRING');""")                            
-                                            
+                                            'LINESTRING');""")
+
     # Read districts from shape
     dataSource = ogr.Open(districtsShp)
     layer = dataSource.GetLayer()
     layer.SetAttributeFilter("NAME IN ('%s')" % "','".join(districtNames))
-    
+
     for feature in layer:
         geometry = feature.GetGeometryRef().ExportToWkt()
         name = feature.GetField("NAME")
-        
+
         # Insert data into osDistricts table
         cur.execute("""INSERT INTO osDistricts (name, geometry)
                        VALUES (?, ST_GeomFromText(?, 27700));""",
@@ -92,35 +92,35 @@ with sqlite3.connect(sqliteDb) as db:
     dataSource = ogr.Open(riversShp)
     layer = dataSource.GetLayer()
     layer.SetAttributeFilter("CODE IN (6224, 6225)")
-    
+
     for feature in layer:
         geometry = feature.GetGeometryRef().ExportToWkt()
         identifier = feature.GetField("IDENTIFIER")
         code = feature.GetField("CODE")
         name = feature.GetField("NAME")
-        
+
         # Insert data into osRivers table
         cur.execute("""INSERT INTO osRivers (identifier, code, name, geometry)
                        VALUES (?, ?, ?, ST_GeomFromText(?, 27700));""",
                     (identifier, code, name, geometry))
-                    
+
     # Read coastlines from shape
     dataSource = ogr.Open(coastShp)
     layer = dataSource.GetLayer()
-    
+
     for feature in layer:
         geometry = feature.GetGeometryRef().ExportToWkt()
-        
+
         # Insert data into osCoastline table
         cur.execute("""INSERT INTO osCoastline (geometry)
                        VALUES (ST_GeomFromText(?, 27700));""",
                     (geometry,))
-                    
+
     # Build spatial indexes
     cur.execute("SELECT CreateSpatialIndex('osDistricts', 'geometry');")
     cur.execute("SELECT CreateSpatialIndex('osRivers', 'geometry');")
     cur.execute("SELECT CreateSpatialIndex('osCoastline', 'geometry');")
-    
+
     # Dissolve welsh districts to single polygon
     cur.execute("DROP TABLE IF EXISTS wales;")
     cur.execute("""CREATE TABLE wales (
@@ -133,7 +133,7 @@ with sqlite3.connect(sqliteDb) as db:
     cur.execute("""INSERT INTO wales (name, geometry)
                    SELECT 'Wales', ST_UNION(geometry)
                    FROM osDistricts;""")
-    cur.execute("SELECT CreateSpatialIndex('wales', 'geometry');")    
-  
+    cur.execute("SELECT CreateSpatialIndex('wales', 'geometry');")
+
     # Commit changes to database
     db.commit()

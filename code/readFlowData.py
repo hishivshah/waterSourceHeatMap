@@ -20,21 +20,21 @@ def getGridSquareMinXY(gridSquaresShp):
         gridSquares[gridSq] = (minX, minY)
 
     return gridSquares
-    
+
 def getRiverIDs(lookupCsv):
     """Reads in lookup table between station IDs and river IDs. Returns
        dictionary in format of {stationId : riverId}."""
-       
+
     d = {}
     with open(lookupCsv, "rb") as f:
         reader = csv.reader(f)
-        
+
         # Discard header row
         reader.next()
-        
+
         for row in reader:
             d[row[0]] = row[1]
-    
+
     return d
 
 def readGmfCsv(gmfCsv):
@@ -69,30 +69,30 @@ def calcStationCoords(station, gridSquares):
                           * station["precision"]
 
     return station
-    
+
 def addStationRiverID(station, riverIDs):
     """Adds river ID to station dictionary."""
-    
+
     stationID = station["id"]
     riverID = riverIDs.get(stationID)
     station["riverId"] = riverID
-    
+
     return station
 
 
 if __name__ == "__main__":
 
     # Input paths
-    csvDir  = "../data/2015-03-12/nrfa/NRFA Flow Data Retrieval"
-    gridSquaresShp = "../data/2015-03-12/gb-grids_654971/100km_grid_region.shp"
-    lookupCsv = "../data/2015-03-12/riverStationLookup.csv"
+    csvDir  = "../data/nrfa/NRFA Flow Data Retrieval"
+    gridSquaresShp = "../data/gb-grids_654971/100km_grid_region.shp"
+    lookupCsv = "../data/riverStationLookup.csv"
 
     # Output paths
     outDb = "../results/2015-03-10.sqlite"
 
     # Calculate grid square min x and y coordinates
     gridSquares = getGridSquareMinXY(gridSquaresShp)
-    
+
     # Get river IDs for each station from lookup table
     riverIDs = getRiverIDs(lookupCsv)
 
@@ -153,13 +153,13 @@ if __name__ == "__main__":
 
             # Calculate station coordinates
             data["station"] = calcStationCoords(data["station"], gridSquares)
-            
+
             # Add river ID to station
             data["station"] = addStationRiverID(data["station"], riverIDs)
-            
+
             # Insert data into tables
             cur.execute("""INSERT INTO nrfaStations
-                           VALUES (?, ?, ?, ?, ?, ?, 
+                           VALUES (?, ?, ?, ?, ?, ?,
                                    MakePoint(?, ?, 27700));""",
                         (data["station"].get("id"),
                          data["station"].get("name"),
