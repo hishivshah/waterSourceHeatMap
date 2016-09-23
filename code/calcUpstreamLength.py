@@ -29,7 +29,7 @@ if __name__ == "__main__":
                         level=logging.INFO)
 
     # Database path
-    sqliteDb = "../results/2015-03-10.sqlite"
+    sqliteDb = "../results/results.sqlite"
 
     # Create Directed Graph with multiple edges
     logging.info("Creating graph object")

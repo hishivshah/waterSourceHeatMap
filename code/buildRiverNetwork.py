@@ -2,7 +2,7 @@ import sqlite3
 
 
 # Database path
-sqliteDb = "../results/2015-03-10.sqlite"
+sqliteDb = "../results/results.sqlite"
 
 # Connect to database
 with sqlite3.connect(sqliteDb) as db:

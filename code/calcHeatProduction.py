@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connect to sqlite database
-sqliteDb = "../results/2015-03-10.sqlite"
+sqliteDb = "../results/results.sqlite"
 db = sqlite3.connect(sqliteDb)
 try:
     db.enable_load_extension(True)
