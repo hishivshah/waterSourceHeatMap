@@ -32,13 +32,14 @@ try:
     cur.execute("SELECT DisableSpatialIndex('annualHeat', 'geometry');")
     cur.execute("""CREATE TABLE annualHeat (id INTEGER PRIMARY KEY AUTOINCREMENT,
                                             riverId TEXT,
+                                            riverCode INTEGER,
                                             GWhPerYear REAL);""")
     cur.execute("""SELECT AddGeometryColumn('annualHeat',
                                             'geometry',
                                             27700,
                                             'LINESTRING');""")
-    cur.execute("""INSERT INTO annualHeat (riverId, GWhPerYear, geometry)
-                   SELECT r.id, SUM(heatMW * 0.73), r.geometry
+    cur.execute("""INSERT INTO annualHeat (riverId, riverCode, GWhPerYear, geometry)
+                   SELECT r.id, r.code, SUM(heatMW * 0.73), r.geometry
                    FROM riverEdges r, monthlyFlowRates mf
                    WHERE r.id = mf.riverId
                    GROUP BY r.id;""")
