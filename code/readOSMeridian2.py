@@ -8,6 +8,7 @@ osMeridian2Dir = "../data/meridian2_national_841398"
 districtsShp = os.path.join(osMeridian2Dir, "district_region.shp")
 riversShp = os.path.join(osMeridian2Dir, "river_polyline.shp")
 coastShp = os.path.join(osMeridian2Dir, "coast_ln_polyline.shp")
+lakesShp = os.path.join(osMeridian2Dir, "lake_region.shp")
 
 # Database path
 sqliteDb = "../results/results.sqlite"
@@ -74,6 +75,18 @@ with sqlite3.connect(sqliteDb) as db:
                                             27700,
                                             'LINESTRING');""")
 
+    # Create lakes table
+    cur.execute("DROP TABLE IF EXISTS osLakes;")
+    cur.execute("""CREATE TABLE osLakes (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   identifier TEXT,
+                   code INTEGER,
+                   name TEXT);""")
+    cur.execute("""SELECT AddGeometryColumn('osLakes',
+                                            'geometry',
+                                            27700,
+                                            'POLYGON');""")
+
     # Read districts from shape
     dataSource = ogr.Open(districtsShp)
     layer = dataSource.GetLayer()
@@ -91,7 +104,7 @@ with sqlite3.connect(sqliteDb) as db:
     # Read rivers from shape
     dataSource = ogr.Open(riversShp)
     layer = dataSource.GetLayer()
-    layer.SetAttributeFilter("CODE IN (6224, 6225)")
+    layer.SetAttributeFilter("CODE IN (6224, 6225, 6232)")
 
     for feature in layer:
         geometry = feature.GetGeometryRef().ExportToWkt()
@@ -116,10 +129,26 @@ with sqlite3.connect(sqliteDb) as db:
                        VALUES (ST_GeomFromText(?, 27700));""",
                     (geometry,))
 
+    # Read lakes from shape
+    dataSource = ogr.Open(lakesShp)
+    layer = dataSource.GetLayer()
+
+    for feature in layer:
+        geometry = feature.GetGeometryRef().ExportToWkt()
+        identifier = feature.GetField("IDENTIFIER")
+        code = feature.GetField("CODE")
+        name = feature.GetField("NAME")
+
+        # Insert data into osLakes table
+        cur.execute("""INSERT INTO osLakes (identifier, code, name, geometry)
+                       VALUES (?, ?, ?, ST_GeomFromText(?, 27700));""",
+                    (identifier, code, name, geometry))
+
     # Build spatial indexes
     cur.execute("SELECT CreateSpatialIndex('osDistricts', 'geometry');")
     cur.execute("SELECT CreateSpatialIndex('osRivers', 'geometry');")
     cur.execute("SELECT CreateSpatialIndex('osCoastline', 'geometry');")
+    cur.execute("SELECT CreateSpatialIndex('osLakes', 'geometry');")
 
     # Dissolve welsh districts to single polygon
     cur.execute("DROP TABLE IF EXISTS wales;")
