@@ -3,7 +3,7 @@ readFlowData.py
 - loads data into spatialite database
 
 readOSMeridian2.py
-- reads OS Meridian 2 district polygons, river lines, and coast lines data from shapefiles
+- reads OS Meridian 2 district polygons, river lines, lakes polygons, and coast lines data from shapefiles
 - loads data into spatialite database
 - dissolves Welsh district polygons to create a Welsh national boundary polygon
 
@@ -24,3 +24,4 @@ calcHeatProduction.py
 - calculates the annual heat production of each river reach
 - based on flow rate at the nearest gauging station, and upstream river length ratio between station and reach
 - assumes a river temperature change of 2 degrees Celsius
+- calculates annual heat production of lakes based on river flow rate at lake outflow

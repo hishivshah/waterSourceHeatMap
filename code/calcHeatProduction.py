@@ -45,6 +45,33 @@ try:
                    GROUP BY r.id;""")
     cur.execute("SELECT CreateSpatialIndex('annualHeat', 'geometry');")
 
+    # Calculate annual heat production for lakes
+    cur.execute("DROP TABLE IF EXISTS annualHeatLakes;")
+    cur.execute("""CREATE TABLE annualHeatLakes (
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
+                   identifier TEXT,
+                   code INTEGER,
+                   name TEXT,
+                   GWhPerYear REAL);""")
+    cur.execute("""SELECT AddGeometryColumn('annualHeatLakes',
+                                            'geometry',
+                                            27700,
+                                            'POLYGON');""")
+    cur.execute("""INSERT INTO annualHeatLakes (identifier, code, name,
+                                                GWhPerYear, geometry)
+                   SELECT l.identifier, l.code, l.name, MAX(h.GWhPerYear),
+                          l.geometry
+                   FROM osLakes l, annualheat h
+                   WHERE h.riverCode = 6232
+                   AND ST_Intersects(l.geometry, h.geometry)
+                   AND l.ROWID IN
+                   (SELECT ROWID
+                   FROM SpatialIndex
+                   WHERE f_table_name = 'osLakes'
+                   AND search_frame = h.geometry)
+                   GROUP BY l.id;""")
+    cur.execute("SELECT CreateSpatialIndex('annualHeatLakes', 'geometry');")
+
 finally:
     # Commit changes and close database
     db.commit()
