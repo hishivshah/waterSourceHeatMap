@@ -40,8 +40,14 @@ try:
                                             'LINESTRING');""")
     cur.execute("""INSERT INTO annualHeat (riverId, riverCode, GWhPerYear, geometry)
                    SELECT r.id, r.code, SUM(heatMW * 0.73), r.geometry
-                   FROM riverEdges r, monthlyFlowRates mf
+                   FROM riverEdges r, monthlyFlowRates mf, wales w
                    WHERE r.id = mf.riverId
+                   AND ST_INTERSECTS(r.geometry, w.geometry)
+                   AND r.ROWID IN
+                       (SELECT ROWID
+                       FROM SpatialIndex
+                       WHERE f_table_name = 'riverEdges'
+                       AND search_frame = w.geometry)
                    GROUP BY r.id;""")
     cur.execute("SELECT CreateSpatialIndex('annualHeat', 'geometry');")
 
