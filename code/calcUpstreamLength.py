@@ -5,7 +5,10 @@ import networkx
 import shapely
 import shapely.wkt
 
-def searchUpOrDownStream(graph, startNode, gaugedEdgeId, gaugedEdgeUpLen, searchDirection):
+
+def searchUpOrDownStream(
+    graph, startNode, gaugedEdgeId, gaugedEdgeUpLen, searchDirection
+):
 
     if searchDirection == "upstream":
         # Find upstream edges
@@ -16,11 +19,15 @@ def searchUpOrDownStream(graph, startNode, gaugedEdgeId, gaugedEdgeUpLen, search
 
     searchEdges = graph.edges(searchNodes, keys=True, data=True)
     for sEdge in searchEdges:
-        if sEdge[3].get("nearestGaugedEdge") == None:
+        if sEdge[3].get("nearestGaugedEdge") is None:
             sEdge[3]["nearestGaugedEdge"] = gaugedEdgeId
-            sEdge[3]["upstreamLengthRatio"] = sEdge[3]["upstreamLength"] / gaugedEdgeUpLen
+            sEdge[3]["upstreamLengthRatio"] = (
+                sEdge[3]["upstreamLength"] / gaugedEdgeUpLen
+            )
 
-            searchUpOrDownStream(graph, sEdge[0], gaugedEdgeId, gaugedEdgeUpLen, searchDirection)
+            searchUpOrDownStream(
+                graph, sEdge[0], gaugedEdgeId, gaugedEdgeUpLen, searchDirection
+            )
 
 if __name__ == "__main__":
 
@@ -68,12 +75,16 @@ if __name__ == "__main__":
 
         # Calculate upstream river length
         logging.info("Calculating upstream river lengths")
-        for startNode, endNode, key, attr in G.edges_iter(data=True, keys=True):
+        for startNode, endNode, key, attr in G.edges_iter(
+            data=True, keys=True
+        ):
 
             preNodes = networkx.ancestors(G, startNode)
             preEdges = G.edges(preNodes, keys=True, data=True)
-            upstreamLength = attr["geometry"].length \
-                             + sum([e[3]["geometry"].length for e in preEdges])
+            upstreamLength = (
+                attr["geometry"].length +
+                sum([e[3]["geometry"].length for e in preEdges])
+            )
             G.edge[startNode][endNode][key]["upstreamLength"] = upstreamLength
 
         # Find river reaches with gauging station
@@ -84,7 +95,9 @@ if __name__ == "__main__":
                        AND startNodeId IS NOT NULL
                        AND endNodeId IS NOT NULL;""")
         gEdgeIds = [row[0] for row in cur.fetchall()]
-        gEdges = [edge for edge in G.edges(keys=True, data=True) if edge[2] in gEdgeIds]
+        gEdges = [
+            e for e in G.edges(keys=True, data=True) if edge[2] in gEdgeIds
+        ]
 
         for gEdge in gEdges:
             gEdge[3]["nearestGaugedEdge"] = gEdge[2]
@@ -96,7 +109,9 @@ if __name__ == "__main__":
             gEdgeId = gEdge[2]
             gEdgeUpLen = gEdge[3]["upstreamLength"]
 
-            searchUpOrDownStream(G, gEdgeStart, gEdgeId, gEdgeUpLen, "upstream")
+            searchUpOrDownStream(
+                G, gEdgeStart, gEdgeId, gEdgeUpLen, "upstream"
+            )
 
         # Find downstream edges for each gauged edge
         for gEdge in gEdges:
@@ -104,19 +119,23 @@ if __name__ == "__main__":
             gEdgeId = gEdge[2]
             gEdgeUpLen = gEdge[3]["upstreamLength"]
 
-            searchUpOrDownStream(G, gEdgeStart, gEdgeId, gEdgeUpLen, "downstream")
+            searchUpOrDownStream(
+                G, gEdgeStart, gEdgeId, gEdgeUpLen, "downstream"
+            )
 
         # Update riverEdges tables
         for e in G.edges_iter(data=True, keys=True):
             if e[3].get("nearestGaugedEdge") is not None:
-                cur.execute("""UPDATE riverEdges
-                              SET nearestGaugedEdge = '%s',
-                              upstreamLengthRatio = %s
-                              WHERE id = '%s';"""
-                              % (e[3].get("nearestGaugedEdge"),
-                                 e[3].get("upstreamLengthRatio"),
-                                 e[2]))
-
+                cur.execute("""
+                    UPDATE riverEdges
+                    SET nearestGaugedEdge = '%s',
+                    upstreamLengthRatio = %s
+                    WHERE id = '%s';
+                """ % (
+                    e[3].get("nearestGaugedEdge"),
+                    e[3].get("upstreamLengthRatio"),
+                    e[2]
+                ))
 
         # Commit changes
         db.commit()

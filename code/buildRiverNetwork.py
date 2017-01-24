@@ -72,7 +72,6 @@ with sqlite3.connect(sqliteDb) as db:
                    GROUP BY e.geometry;""")
     cur.execute("SELECT CreateSpatialIndex('riverNodes', 'geometry');")
 
-
     while cur.execute("""SELECT count(e.id)
                          FROM riverEdges e, riverNodes n
                          WHERE e.endNodeId IS NULL
@@ -112,7 +111,9 @@ with sqlite3.connect(sqliteDb) as db:
         cur.execute("""UPDATE riverEdges
                        SET endNodeId = (SELECT n.id
                        FROM riverNodes n
-                       WHERE ST_Intersects(ST_EndPoint(riverEdges.geometry), n.geometry)
+                       WHERE ST_Intersects(
+                           ST_EndPoint(riverEdges.geometry), n.geometry
+                       )
                        AND n.ROWID IN
                        (SELECT ROWID
                        FROM SpatialIndex
@@ -131,7 +132,9 @@ with sqlite3.connect(sqliteDb) as db:
         cur.execute("""UPDATE riverEdges
                        SET startNodeId = (SELECT n.id
                        FROM riverNodes n
-                       WHERE ST_Intersects(ST_StartPoint(riverEdges.geometry), n.geometry)
+                       WHERE ST_Intersects(
+                           ST_StartPoint(riverEdges.geometry), n.geometry
+                       )
                        AND n.ROWID IN
                        (SELECT ROWID
                        FROM SpatialIndex
@@ -139,7 +142,6 @@ with sqlite3.connect(sqliteDb) as db:
                        AND search_frame = riverEdges.geometry))
                        WHERE startNodeId IS NULL
                        AND endNodeId IS NOT NULL;""")
-
 
     # Commit changes
     db.commit()

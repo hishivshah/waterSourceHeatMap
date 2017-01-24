@@ -14,7 +14,8 @@ try:
                    SELECT r.id AS riverId,
                           STRFTIME("%m", gmf.month||"-01") AS month,
                           AVG(gmf.flow) * r.upstreamLengthRatio AS flow,
-                          AVG(gmf.flow) * r.upstreamLengthRatio * 8.36 AS heatMW,
+                          AVG(gmf.flow) * r.upstreamLengthRatio * 8.36
+                               AS heatMW,
                           ST_Length(r.geometry) * 0.02 AS limitMW
                    FROM nrfaStations s, nrfaData d, nrfaGmf gmf, riverEdges r
                    WHERE d.station = s.id

@@ -6,6 +6,7 @@ import sqlite3
 
 import ogr
 
+
 def getGridSquareMinXY(gridSquaresShp):
     """Reads in grid square shapefiles, returns dictionary in format of
        {gridSquareCode:(minX,minY)."""
@@ -20,6 +21,7 @@ def getGridSquareMinXY(gridSquaresShp):
         gridSquares[gridSq] = (minX, minY)
 
     return gridSquares
+
 
 def getRiverIDs(lookupCsv):
     """Reads in lookup table between station IDs and river IDs. Returns
@@ -37,6 +39,7 @@ def getRiverIDs(lookupCsv):
 
     return d
 
+
 def readGmfCsv(gmfCsv):
     """ Read in Gauged Monthly Flows csv file. Returns dictionaries of
         data and metadata."""
@@ -46,11 +49,12 @@ def readGmfCsv(gmfCsv):
         reader = csv.reader(f)
         for row in reader:
             if row[0] in ("file", "database", "station", "dataType", "data"):
-                d[row[0]].update({row[1] : row[2]})
+                d[row[0]].update({row[1]: row[2]})
             else:
-                d["gmf"].update({row[0] : row[1]})
+                d["gmf"].update({row[0]: row[1]})
 
     return d
+
 
 def calcStationCoords(station, gridSquares):
     """ Calculates easting, northing and coordinate precision from the
@@ -60,15 +64,18 @@ def calcStationCoords(station, gridSquares):
     # calculate coordinates and precision
     gridRef = station["gridReference"]
     gridCode = gridRef[:2]
-    station["precision"] = 10 ** (5 - len(gridRef[2:])/2) # Units: meters
-    station["easting"] = gridSquares[gridCode][0] \
-                         + int(gridRef[2:len(gridRef[2:])/2 + 2]) \
-                         * station["precision"]
-    station["northing"] = gridSquares[gridCode][1] \
-                          + int(gridRef[len(gridRef[2:])/2 + 2:]) \
-                          * station["precision"]
+    station["precision"] = 10 ** (5 - len(gridRef[2:])/2)  # Units: meters
+    station["easting"] = (
+        gridSquares[gridCode][0] + int(gridRef[2:len(gridRef[2:])/2 + 2]) *
+        station["precision"]
+    )
+    station["northing"] = (
+        gridSquares[gridCode][1] + int(gridRef[len(gridRef[2:])/2 + 2:]) *
+        station["precision"]
+    )
 
     return station
+
 
 def addStationRiverID(station, riverIDs):
     """Adds river ID to station dictionary."""
@@ -83,7 +90,7 @@ def addStationRiverID(station, riverIDs):
 if __name__ == "__main__":
 
     # Input paths
-    csvDir  = "../data/nrfa/NRFA Flow Data Retrieval"
+    csvDir = "../data/nrfa/NRFA Flow Data Retrieval"
     gridSquaresShp = "../data/gb-grids_654971/100km_grid_region.shp"
     lookupCsv = "../data/riverStationLookup.csv"
 
@@ -146,7 +153,6 @@ if __name__ == "__main__":
                        FOREIGN KEY(station) REFERENCES nrfaStations(id),
                        FOREIGN KEY(dataType) REFERENCES nrfaDataTypes(id));""")
 
-
         # Read data from csv files
         for csvFile in glob.iglob(os.path.join(csvDir, "*.csv")):
             data = readGmfCsv(csvFile)
@@ -182,12 +188,15 @@ if __name__ == "__main__":
                          data["dataType"].get("id"),
                          data["data"].get("first"),
                          data["data"].get("last")))
-            cur.executemany("""INSERT INTO nrfaGmf VALUES (?, ?, ?, ?);""",
-                        [(data["station"].get("id"),
-                          data["dataType"].get("id"),
-                          k,
-                          v)
-                         for k, v in data["gmf"].iteritems()])
+            cur.executemany(
+                "INSERT INTO nrfaGmf VALUES (?, ?, ?, ?);",
+                [(
+                    data["station"].get("id"),
+                    data["dataType"].get("id"),
+                    k,
+                    v
+                ) for k, v in data["gmf"].iteritems()]
+            )
 
         # Create spatial index
         cur.execute("SELECT DisableSpatialIndex('nrfaStations', 'geometry');")
